@@ -3,10 +3,11 @@ package dom
 import (
 	"github.com/wayf-dk/go-libxml2/clib"
 	"github.com/wayf-dk/go-libxml2/types"
+	"github.com/wayf-dk/go-libxml2/xpath"
 )
 
 // Serialize produces serialization of the document, canonicalized.
-func (s C14NSerialize) Serialize(n types.Node) (string, error) {
+func (s C14NSerialize) Serialize(d, n types.Node) (string, error) {
 	/*
 	 * Below document is taken from libxml2 directly. Pay special attention
 	 * to the required settings when parsing the document to be canonicalized.
@@ -35,11 +36,25 @@ func (s C14NSerialize) Serialize(n types.Node) (string, error) {
 	 *    options = XMLParserDTDLoad | XMLParserDTDAttr | XMLParserNoEnt
 	 *
 	 */
-	switch n.(type) {
+
+    var nodes types.Node = nil
+
+	switch d.(type) {
 	case *Document:
 	default:
 		return "", ErrInvalidNodeType
 	}
 
-	return clib.XMLC14NDocDumpMemory(n, int(s.Mode), s.WithComments)
+    if n != nil {
+        ctx, err := xpath.NewContext(n)
+        if err != nil {
+            return "", err
+        }
+        defer ctx.Free()
+
+        nodes, err := ctx.Find("(.)")
+        defer nodes.Free()
+    }
+
+	return clib.XMLC14NDocDumpMemory(d, nodes, int(s.Mode), s.WithComments)
 }
