@@ -1,8 +1,8 @@
 package dom
 
 import (
-	"github.com/lestrrat/go-libxml2/clib"
-	"github.com/lestrrat/go-libxml2/types"
+	"github.com/wayf-dk/go-libxml2/clib"
+	"github.com/wayf-dk/go-libxml2/types"
 	"github.com/pkg/errors"
 )
 
@@ -157,6 +157,11 @@ func (d *Document) AddChild(n types.Node) error {
 	return errors.New("method AddChild is not available for Document node")
 }
 
+// AddPrevSibling is a no op for Document
+func (d *Document) AddPrevSibling(n types.Node) error {
+	return errors.New("method AddChild is not available for Document node")
+}
+
 // CreateAttribute creates a new attribute
 func (d *Document) CreateAttribute(k, v string) (*Attribute, error) {
 	attr, err := clib.XMLNewDocProp(d, k, v)
@@ -262,7 +267,13 @@ func (d *Document) String() string {
 
 // Dump formats the document with or withour formatting.
 func (d *Document) Dump(format bool) string {
-	return clib.XMLDocumentString(d, d.Encoding(), format)
+    f := 0
+    if format {
+        f = 1
+    }
+    return clib.XMLToString(d, f, false)
+//    return clib.XMLToString(d, f, true)
+//	return clib.XMLDocumentString(d, d.Encoding(), format)
 }
 
 // NodeType returns the XMLNodeType

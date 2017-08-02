@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/lestrrat/go-libxml2/clib"
-	"github.com/lestrrat/go-libxml2/types"
+	"github.com/wayf-dk/go-libxml2/clib"
+	"github.com/wayf-dk/go-libxml2/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -134,6 +134,14 @@ func TestDOM(t *testing.T) {
 		child.AppendText(fmt.Sprintf("text%d", i))
 		root.AddChild(child)
 
+		pre, err := doc.CreateElement(fmt.Sprintf("pre%d", i))
+		if !assert.NoError(t, err, "dom.CreateElement(pre%d) should succeed", i) {
+
+			return
+		}
+		pre.AppendText(fmt.Sprintf("pre%d", i))
+		child.AddPrevSibling(pre)
+
 		if i == 2 {
 			toRemove = child
 		}
@@ -141,7 +149,7 @@ func TestDOM(t *testing.T) {
 
 	// Temporary test
 	expected := `<?xml version="1.0" encoding="utf-8"?>
-<root><child1>text1</child1><child2>text2</child2><child3>text3</child3></root>
+<root><pre1>pre1</pre1><child1>text1</child1><pre2>pre2</pre2><child2>text2</child2><pre3>pre3</pre3><child3>text3</child3></root>
 `
 	if !assert.Equal(t, expected, doc.String(), "Failed to create XML document") {
 		return
@@ -151,7 +159,7 @@ func TestDOM(t *testing.T) {
 		return
 	}
 	expected = `<?xml version="1.0" encoding="utf-8"?>
-<root><child1>text1</child1><child3>text3</child3></root>
+<root><pre1>pre1</pre1><child1>text1</child1><pre2>pre2</pre2><pre3>pre3</pre3><child3>text3</child3></root>
 `
 	if !assert.Equal(t, expected, doc.String(), "XML should match") {
 		return

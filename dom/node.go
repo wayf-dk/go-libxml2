@@ -1,9 +1,9 @@
 package dom
 
 import (
-	"github.com/lestrrat/go-libxml2/clib"
-	"github.com/lestrrat/go-libxml2/types"
-	"github.com/lestrrat/go-libxml2/xpath"
+	"github.com/wayf-dk/go-libxml2/clib"
+	"github.com/wayf-dk/go-libxml2/types"
+	"github.com/wayf-dk/go-libxml2/xpath"
 	"github.com/pkg/errors"
 )
 
@@ -213,6 +213,11 @@ func (n *XMLNode) SetNodeValue(value string) {
 // AddChild appends the node
 func (n *XMLNode) AddChild(child types.Node) error {
 	return clib.XMLAddChild(n, child)
+}
+
+// AddPrevSibling appends the node before
+func (n *XMLNode) AddPrevSibling(child types.Node) error {
+	return clib.XMLAddPrevSibling(n, child)
 }
 
 // TextContent returns the text content

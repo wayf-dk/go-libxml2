@@ -210,6 +210,7 @@ MY_xmlCreateElementNS(xmlDoc *doc, xmlChar *nsuri, xmlChar *name) {
 
 	xmlNode *root = xmlDocGetRootElement(doc);
 	xmlNs *ns;
+	int newns = 0;
 	if (root == NULL) {
 		// No document element
 		ns = xmlNewNs(NULL, nsuri, prefix);
@@ -218,6 +219,7 @@ MY_xmlCreateElementNS(xmlDoc *doc, xmlChar *nsuri, xmlChar *name) {
 		ns = xmlSearchNs(doc, root, prefix);
 		if (ns == NULL) { // Not declared, create a new one
 			ns = xmlNewNs(NULL, nsuri, prefix);
+			newns = 1;
 		} else { // Declared. Does the uri match?
 			if (xmlStrcmp(ns->href, nsuri) != 0) {
 				// Cleanup prefix
@@ -225,8 +227,8 @@ MY_xmlCreateElementNS(xmlDoc *doc, xmlChar *nsuri, xmlChar *name) {
 			}
 			// Namespace is already registered, we don't need to provide a
 			// namespace element to xmlNewDocNode
-			ns = NULL;
-			local = name;
+			//ns = NULL;
+			//local = name;
 		}
 	} else {
 		// If the name does not contain a prefix, check for the
@@ -238,7 +240,7 @@ MY_xmlCreateElementNS(xmlDoc *doc, xmlChar *nsuri, xmlChar *name) {
 	}
 
 	node = xmlNewDocNode(doc, ns, local, NULL);
-	if (ns != NULL) {
+	if (newns) {
 		node->nsDef = ns;
 	}
 
@@ -336,7 +338,7 @@ import (
 	"unicode/utf8"
 	"unsafe"
 
-	"github.com/lestrrat/go-libxml2/internal/debug"
+	"github.com/wayf-dk/go-libxml2/internal/debug"
 	"github.com/pkg/errors"
 )
 
@@ -871,6 +873,23 @@ func XMLAddChild(n PtrSource, child PtrSource) error {
 	}
 
 	if C.xmlAddChild(nptr, cptr) == nil {
+		return errors.New("failed to add child")
+	}
+	return nil
+}
+
+func XMLAddPrevSibling(n PtrSource, child PtrSource) error {
+	nptr, err := validNodePtr(n)
+	if err != nil {
+		return err
+	}
+
+	cptr, err := validNodePtr(child)
+	if err != nil {
+		return err
+	}
+
+	if C.xmlAddPrevSibling(nptr, cptr) == nil {
 		return errors.New("failed to add child")
 	}
 	return nil
@@ -1749,7 +1768,8 @@ func XMLUnsetNsProp(n PtrSource, ns PtrSource, name string) error {
 	return nil
 }
 
-func XMLC14NDocDumpMemory(d PtrSource, mode int, withComments bool) (string, error) {
+// to-do - look into accepting a node
+func XMLC14NDocDumpMemory(d PtrSource, nodes PtrSource,  mode int, withComments bool) (string, error) {
 	dptr, err := validDocumentPtr(d)
 	if err != nil {
 		return "", err
@@ -1772,6 +1792,45 @@ func XMLC14NDocDumpMemory(d PtrSource, mode int, withComments bool) (string, err
 		withCommentsInt,
 		&result,
 	)
+	if written < 0 {
+		e := C.MY_xmlLastError()
+		return "", errors.New("c14n dump failed: " + C.GoString(e.message))
+	}
+	return xmlCharToString(result), nil
+}
+
+// C14n Canonicalise the node using the SAML specified exclusive method
+// Very slow on large documents with node != nil
+func C14n(d, n PtrSource) (string, error) {
+    var exclc14nxpath *C.xmlChar = (*C.xmlChar)(unsafe.Pointer(C.CString("(.//. | .//@* | .//namespace::*)")))
+	dptr, err := validDocumentPtr(d)
+	if err != nil {
+		return "", err
+	}
+
+	var result *C.xmlChar
+	var nodeset *C.xmlNodeSet = nil
+
+	if n != nil {
+        nptr, err := validNodePtr(n)
+        if err != nil {
+            return "", err
+        }
+
+        ctx := C.xmlXPathNewContext(nil)
+        ctx.namespaces = nil
+        if err == nil {
+            ctx.node = (*C.xmlNode)(unsafe.Pointer(nptr))
+        }
+		C.xmlXPathSetContextNode(nptr, ctx)
+		xpathObj := C.xmlXPathEvalExpression(exclc14nxpath, ctx)
+		defer C.xmlXPathFreeObject(xpathObj)
+		nodeset = xpathObj.nodesetval
+		//fmt.Printf("%+v\n", nodeset)
+	}
+
+	written := C.xmlC14NDocDumpMemory(dptr, nodeset, C.XML_C14N_EXCLUSIVE_1_0, nil, 0, &result)
+
 	if written < 0 {
 		e := C.MY_xmlLastError()
 		return "", errors.New("c14n dump failed: " + C.GoString(e.message))
@@ -2080,10 +2139,17 @@ func XMLTextData(n PtrSource) string {
 }
 
 func XMLSchemaParse(buf []byte) (uintptr, error) {
+/*
 	parserCtx := C.xmlSchemaNewMemParserCtxt(
 		(*C.char)(unsafe.Pointer(&buf[0])),
 		C.int(len(buf)),
 	)
+*/
+	cfile := C.CString(string(buf))
+	defer C.free(unsafe.Pointer(cfile))
+
+    parserCtx := C.xmlSchemaNewParserCtxt(cfile)
+
 	if parserCtx == nil {
 		return 0, errors.New("failed to create parser")
 	}

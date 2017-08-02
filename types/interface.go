@@ -1,6 +1,6 @@
 package types
 
-import "github.com/lestrrat/go-libxml2/clib"
+import "github.com/wayf-dk/go-libxml2/clib"
 
 // PtrSource defines the interface for things that is backed by
 // a C backend
@@ -29,6 +29,7 @@ type XPathResult interface {
 	Number() float64
 	String() string
 	Type() clib.XPathObjectType
+	Pointer() uintptr
 }
 
 // Document defines the interface for XML document
@@ -76,6 +77,7 @@ type Node interface {
 	ParseInContext(string, int) (Node, error)
 
 	AddChild(Node) error
+	AddPrevSibling(Node) error
 	ChildNodes() (NodeList, error)
 	Copy() (Node, error)
 	OwnerDocument() (Document, error)

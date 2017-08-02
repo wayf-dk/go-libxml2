@@ -17,8 +17,8 @@
 package xsd
 
 import (
-	"github.com/lestrrat/go-libxml2/clib"
-	"github.com/lestrrat/go-libxml2/types"
+	"github.com/wayf-dk/go-libxml2/clib"
+	"github.com/wayf-dk/go-libxml2/types"
 	"github.com/pkg/errors"
 )
 

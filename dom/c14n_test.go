@@ -3,8 +3,8 @@ package dom_test
 import (
 	"testing"
 
-	"github.com/lestrrat/go-libxml2"
-	"github.com/lestrrat/go-libxml2/dom"
+	"github.com/wayf-dk/go-libxml2"
+	"github.com/wayf-dk/go-libxml2/dom"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,7 +35,7 @@ func TestC14N(t *testing.T) {
 		return
 	}
 
-	s, err := dom.C14NSerialize{Mode: dom.C14NExclusive1_0, WithComments: true}.Serialize(doc)
+	s, err := dom.C14NSerialize{Mode: dom.C14NExclusive1_0, WithComments: true}.Serialize(doc, nil)
 	if !assert.NoError(t, err, "C14N should succeed") {
 		return
 	}
