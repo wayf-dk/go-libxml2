@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/wayf-dk/go-libxml2"
 	"github.com/wayf-dk/go-libxml2/xsd"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestXSD(t *testing.T) {

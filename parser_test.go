@@ -4,9 +4,9 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/wayf-dk/go-libxml2/clib"
 	"github.com/wayf-dk/go-libxml2/parser"
-	"github.com/stretchr/testify/assert"
 )
 
 const stdXMLDecl = `<?xml version="1.0"?>` + "\n"

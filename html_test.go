@@ -3,9 +3,9 @@ package libxml2_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/wayf-dk/go-libxml2"
 	"github.com/wayf-dk/go-libxml2/xpath"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestParseHTML(t *testing.T) {

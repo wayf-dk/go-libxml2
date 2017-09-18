@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/wayf-dk/go-libxml2"
 	"github.com/wayf-dk/go-libxml2/dom"
 	"github.com/wayf-dk/go-libxml2/xpath"
-	"github.com/stretchr/testify/assert"
 	"gopkg.in/xmlpath.v1"
 )
 
