@@ -1801,7 +1801,7 @@ func XMLC14NDocDumpMemory(d PtrSource, nodes PtrSource,  mode int, withComments 
 
 // C14n Canonicalise the node using the SAML specified exclusive method
 // Very slow on large documents with node != nil
-func C14n(d, n PtrSource) (string, error) {
+func C14n(d, n PtrSource, nsPrefixes string) (string, error) {
     var exclc14nxpath *C.xmlChar = (*C.xmlChar)(unsafe.Pointer(C.CString("(.//. | .//@* | .//namespace::*)")))
 	dptr, err := validDocumentPtr(d)
 	if err != nil {
@@ -1829,7 +1829,13 @@ func C14n(d, n PtrSource) (string, error) {
 		//fmt.Printf("%+v\n", nodeset)
 	}
 
-	written := C.xmlC14NDocDumpMemory(dptr, nodeset, C.XML_C14N_EXCLUSIVE_1_0, nil, 0, &result)
+    var ns_prefixes *C.xmlChar
+
+    if nsPrefixes != "" {
+        ns_prefixes = (*C.xmlChar)(unsafe.Pointer(C.CString(nsPrefixes)))
+    }
+
+	written := C.xmlC14NDocDumpMemory(dptr, nodeset, C.XML_C14N_EXCLUSIVE_1_0, &ns_prefixes, 0, &result)
 
 	if written < 0 {
 		e := C.MY_xmlLastError()

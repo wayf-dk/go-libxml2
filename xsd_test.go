@@ -1,8 +1,8 @@
 package libxml2_test
 
 import (
-	"io/ioutil"
-	"os"
+	//	"io/ioutil"
+	//	"os"
 	"path/filepath"
 	"testing"
 
@@ -13,18 +13,20 @@ import (
 
 func TestXSD(t *testing.T) {
 	xsdfile := filepath.Join("test", "xmldsig-core-schema.xsd")
-	f, err := os.Open(xsdfile)
-	if !assert.NoError(t, err, "open schema") {
-		return
-	}
-	defer f.Close()
+	/*
+		f, err := os.Open(xsdfile)
+		if !assert.NoError(t, err, "open schema") {
+			return
+		}
+		defer f.Close()
 
-	buf, err := ioutil.ReadAll(f)
-	if !assert.NoError(t, err, "reading from schema") {
-		return
-	}
+		buf, err := ioutil.ReadAll(f)
+		if !assert.NoError(t, err, "reading from schema") {
+			return
+		}
 
-	s, err := xsd.Parse(buf)
+	*/
+	s, err := xsd.Parse([]byte(xsdfile))
 	if !assert.NoError(t, err, "parsing schema") {
 		return
 	}
@@ -59,7 +61,7 @@ func TestXSD(t *testing.T) {
 		const src = `<?xml version="1.0" encoding="UTF-8"?>
   <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
     <SignedInfo>
-      <CanonicalizationMethod 
+      <CanonicalizationMethod
            Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-
 20010315#WithComments"/>
       <SignatureMethod Algorithm="http://www.w3.org/2000/09/
