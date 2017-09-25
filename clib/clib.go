@@ -333,6 +333,7 @@ import "C"
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -1829,13 +1830,19 @@ func C14n(d, n PtrSource, nsPrefixes string) (string, error) {
 		//fmt.Printf("%+v\n", nodeset)
 	}
 
-    var ns_prefixes *C.xmlChar
+    ws := regexp.MustCompile("\\w+")
+    var nsPrefixesSlice []*C.xmlChar
+    var nsPrefixesParam **C.xmlChar
 
-    if nsPrefixes != "" {
-        ns_prefixes = (*C.xmlChar)(unsafe.Pointer(C.CString(nsPrefixes)))
+    nsPrefixesParam = nil
+    for _, prefix := range ws.FindAllString(nsPrefixes, -1) {
+        cs := C.CString(prefix)
+	    defer C.free(unsafe.Pointer(cs))
+        nsPrefixesSlice = append(nsPrefixesSlice, (*C.xmlChar)(unsafe.Pointer(cs)))
+        nsPrefixesParam = &nsPrefixesSlice[0]
     }
 
-	written := C.xmlC14NDocDumpMemory(dptr, nodeset, C.XML_C14N_EXCLUSIVE_1_0, &ns_prefixes, 0, &result)
+	written := C.xmlC14NDocDumpMemory(dptr, nodeset, C.XML_C14N_EXCLUSIVE_1_0, nsPrefixesParam, 0, &result)
 
 	if written < 0 {
 		e := C.MY_xmlLastError()
