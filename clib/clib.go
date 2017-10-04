@@ -333,7 +333,6 @@ import "C"
 import (
 	"fmt"
 	"reflect"
-	"regexp"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -1830,12 +1829,10 @@ func C14n(d, n PtrSource, nsPrefixes string) (string, error) {
 		//fmt.Printf("%+v\n", nodeset)
 	}
 
-    ws := regexp.MustCompile("\\w+")
     var nsPrefixesSlice []*C.xmlChar
     var nsPrefixesParam **C.xmlChar
 
-    nsPrefixesParam = nil
-    for _, prefix := range ws.FindAllString(nsPrefixes, -1) {
+    for _, prefix := range strings.Fields(nsPrefixes) {
         cs := C.CString(prefix)
 	    defer C.free(unsafe.Pointer(cs))
         nsPrefixesSlice = append(nsPrefixesSlice, (*C.xmlChar)(unsafe.Pointer(cs)))
