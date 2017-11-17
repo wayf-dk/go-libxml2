@@ -2109,6 +2109,15 @@ func XMLXPathObjectBool(x PtrSource) bool {
 	return C.int(xptr.boolval) == 1
 }
 
+func XMLXPathObjectString(x PtrSource) string {
+	xptr, err := validXPathObjectPtr(x)
+	if err != nil {
+		return ""
+	}
+
+	return xmlCharToString(xptr.stringval)
+}
+
 func XMLXPathObjectNodeList(x PtrSource) ([]uintptr, error) {
 	// Probably needs NodeList iterator
 	xptr, err := validXPathObjectPtr(x)

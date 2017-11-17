@@ -114,6 +114,8 @@ func (x Object) String() string {
 			return ""
 		}
 		return nl.NodeValue()
+	case StringType:
+	    return clib.XMLXPathObjectString(x)
 	default:
 		return fmt.Sprintf("%v", x)
 	}
