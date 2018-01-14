@@ -849,7 +849,9 @@ func XMLNodeValue(n PtrSource) (string, error) {
 	var s string
 	switch XMLNodeType(nptr._type) {
 	case AttributeNode, ElementNode, TextNode, CommentNode, PiNode, EntityRefNode:
-		s = xmlCharToString(C.xmlXPathCastNodeToString(nptr))
+	    str := C.xmlXPathCastNodeToString(nptr)
+		s = xmlCharToString(str)
+		C.free(unsafe.Pointer(str))
 	case CDataSectionNode, EntityDecl:
 		if nptr.content != nil {
 			s = xmlCharToString(C.xmlStrdup(nptr.content))
@@ -1161,7 +1163,6 @@ func XMLRemoveChild(n PtrSource, t PtrSource) error {
 	if XMLNodeType(tptr._type) == ElementNode {
 		reconcileNs(tptr)
 	}
-
 	return nil
 }
 
@@ -1522,6 +1523,7 @@ func XMLDocumentString(doc PtrSource, encoding string, format bool) string {
 	var xc *C.xmlChar
 	C.xmlDocDumpFormatMemoryEnc(dptr, &xc, &i, (*C.char)(unsafe.Pointer(xcencodingptr)), intformat)
 
+	defer C.free(unsafe.Pointer(xc))
 	return xmlCharToString(xc)
 }
 
@@ -1803,6 +1805,8 @@ func XMLC14NDocDumpMemory(d PtrSource, nodes PtrSource,  mode int, withComments 
 // Very slow on large documents with node != nil
 func C14n(d, n PtrSource, nsPrefixes string) (string, error) {
     var exclc14nxpath *C.xmlChar = (*C.xmlChar)(unsafe.Pointer(C.CString("(.//. | .//@* | .//namespace::*)")))
+    defer C.free(unsafe.Pointer(exclc14nxpath))
+
 	dptr, err := validDocumentPtr(d)
 	if err != nil {
 		return "", err
@@ -1811,6 +1815,7 @@ func C14n(d, n PtrSource, nsPrefixes string) (string, error) {
 	var result *C.xmlChar
 	var nodeset *C.xmlNodeSet = nil
 
+
 	if n != nil {
         nptr, err := validNodePtr(n)
         if err != nil {
@@ -1818,6 +1823,7 @@ func C14n(d, n PtrSource, nsPrefixes string) (string, error) {
         }
 
         ctx := C.xmlXPathNewContext(nil)
+        defer C.xmlXPathFreeContext(ctx)
         ctx.namespaces = nil
         if err == nil {
             ctx.node = (*C.xmlNode)(unsafe.Pointer(nptr))
@@ -1826,9 +1832,7 @@ func C14n(d, n PtrSource, nsPrefixes string) (string, error) {
 		xpathObj := C.xmlXPathEvalExpression(exclc14nxpath, ctx)
 		defer C.xmlXPathFreeObject(xpathObj)
 		nodeset = xpathObj.nodesetval
-		//fmt.Printf("%+v\n", nodeset)
 	}
-
     var nsPrefixesSlice []*C.xmlChar
     var nsPrefixesParam **C.xmlChar
 
@@ -1838,8 +1842,8 @@ func C14n(d, n PtrSource, nsPrefixes string) (string, error) {
         nsPrefixesSlice = append(nsPrefixesSlice, (*C.xmlChar)(unsafe.Pointer(cs)))
         nsPrefixesParam = &nsPrefixesSlice[0]
     }
-
 	written := C.xmlC14NDocDumpMemory(dptr, nodeset, C.XML_C14N_EXCLUSIVE_1_0, nsPrefixesParam, 0, &result)
+	defer C.MY_xmlFree(unsafe.Pointer(result))
 
 	if written < 0 {
 		e := C.MY_xmlLastError()
