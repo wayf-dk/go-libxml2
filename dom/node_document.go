@@ -267,12 +267,12 @@ func (d *Document) String() string {
 
 // Dump formats the document with or withour formatting.
 func (d *Document) Dump(format bool) string {
-    f := 0
-    if format {
-        f = 1
-    }
-    return clib.XMLToString(d, f, false)
-//    return clib.XMLToString(d, f, true)
+   f := 0
+   if format {
+       f = 1
+   }
+//   return clib.XMLToString(d, f, false)
+   return clib.XMLToString(d, f, true)
 //	return clib.XMLDocumentString(d, d.Encoding(), format)
 }
 
