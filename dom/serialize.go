@@ -37,7 +37,7 @@ func (s C14NSerialize) Serialize(d, n types.Node) (string, error) {
 	 *
 	 */
 
-    var nodes types.Node = nil
+	var nodes types.Node = nil
 
 	switch d.(type) {
 	case *Document:
@@ -45,16 +45,16 @@ func (s C14NSerialize) Serialize(d, n types.Node) (string, error) {
 		return "", ErrInvalidNodeType
 	}
 
-    if n != nil {
-        ctx, err := xpath.NewContext(n)
-        if err != nil {
-            return "", err
-        }
-        defer ctx.Free()
+	if n != nil {
+		ctx, err := xpath.NewContext(n)
+		if err != nil {
+			return "", err
+		}
+		defer ctx.Free()
 
-        nodes, err := ctx.Find("(.)")
-        defer nodes.Free()
-    }
+		nodes, err := ctx.Find("(.)")
+		defer nodes.Free()
+	}
 
 	return clib.XMLC14NDocDumpMemory(d, nodes, int(s.Mode), s.WithComments)
 }

@@ -3,10 +3,10 @@ package dom_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/wayf-dk/go-libxml2/clib"
 	"github.com/wayf-dk/go-libxml2/dom"
 	"github.com/wayf-dk/go-libxml2/types"
-	"github.com/stretchr/testify/assert"
 )
 
 // Tests for DOM Level 3

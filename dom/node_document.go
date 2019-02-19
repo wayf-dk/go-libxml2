@@ -1,9 +1,9 @@
 package dom
 
 import (
+	"github.com/pkg/errors"
 	"github.com/wayf-dk/go-libxml2/clib"
 	"github.com/wayf-dk/go-libxml2/types"
-	"github.com/pkg/errors"
 )
 
 // CreateDocument creates a new document with version="1.0", and no encoding
@@ -267,13 +267,13 @@ func (d *Document) String() string {
 
 // Dump formats the document with or withour formatting.
 func (d *Document) Dump(format bool) string {
-   f := 0
-   if format {
-       f = 1
-   }
-//   return clib.XMLToString(d, f, false)
-   return clib.XMLToString(d, f, true)
-//	return clib.XMLDocumentString(d, d.Encoding(), format)
+	f := 0
+	if format {
+		f = 1
+	}
+	//   return clib.XMLToString(d, f, false)
+	return clib.XMLToString(d, f, true)
+	//	return clib.XMLDocumentString(d, d.Encoding(), format)
 }
 
 // NodeType returns the XMLNodeType

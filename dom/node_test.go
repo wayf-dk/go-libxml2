@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/wayf-dk/go-libxml2/clib"
 	"github.com/wayf-dk/go-libxml2/types"
-	"github.com/stretchr/testify/assert"
 )
 
 func init() {

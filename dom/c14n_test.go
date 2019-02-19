@@ -3,9 +3,9 @@ package dom_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/wayf-dk/go-libxml2"
 	"github.com/wayf-dk/go-libxml2/dom"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestC14N(t *testing.T) {

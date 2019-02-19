@@ -25,9 +25,9 @@ package xpath
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/wayf-dk/go-libxml2/clib"
 	"github.com/wayf-dk/go-libxml2/types"
-	"github.com/pkg/errors"
 )
 
 // Pointer returns the underlying C struct
@@ -115,7 +115,7 @@ func (x Object) String() string {
 		}
 		return nl.NodeValue()
 	case StringType:
-	    return clib.XMLXPathObjectString(x)
+		return clib.XMLXPathObjectString(x)
 	default:
 		return fmt.Sprintf("%v", x)
 	}

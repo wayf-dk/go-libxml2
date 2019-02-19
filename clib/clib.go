@@ -338,8 +338,8 @@ import (
 	"unicode/utf8"
 	"unsafe"
 
-	"github.com/wayf-dk/go-libxml2/internal/debug"
 	"github.com/pkg/errors"
+	"github.com/wayf-dk/go-libxml2/internal/debug"
 )
 
 const _XPathObjectTypeName = "XPathUndefinedXPathNodeSetXPathBooleanXPathNumberXPathStringXPathPointXPathRangeXPathLocationSetXPathUSersXPathXsltTree"
@@ -1773,7 +1773,7 @@ func XMLUnsetNsProp(n PtrSource, ns PtrSource, name string) error {
 }
 
 // to-do - look into accepting a node
-func XMLC14NDocDumpMemory(d PtrSource, nodes PtrSource,  mode int, withComments bool) (string, error) {
+func XMLC14NDocDumpMemory(d PtrSource, nodes PtrSource, mode int, withComments bool) (string, error) {
 	dptr, err := validDocumentPtr(d)
 	if err != nil {
 		return "", err
@@ -1806,8 +1806,8 @@ func XMLC14NDocDumpMemory(d PtrSource, nodes PtrSource,  mode int, withComments 
 // C14n Canonicalise the node using the SAML specified exclusive method
 // Very slow on large documents with node != nil
 func C14n(d, n PtrSource, nsPrefixes string) (string, error) {
-    var exclc14nxpath *C.xmlChar = (*C.xmlChar)(unsafe.Pointer(C.CString("(.//. | .//@* | .//namespace::*)")))
-    defer C.free(unsafe.Pointer(exclc14nxpath))
+	var exclc14nxpath *C.xmlChar = (*C.xmlChar)(unsafe.Pointer(C.CString("(.//. | .//@* | .//namespace::*)")))
+	defer C.free(unsafe.Pointer(exclc14nxpath))
 
 	dptr, err := validDocumentPtr(d)
 	if err != nil {
@@ -1817,33 +1817,32 @@ func C14n(d, n PtrSource, nsPrefixes string) (string, error) {
 	var result *C.xmlChar
 	var nodeset *C.xmlNodeSet = nil
 
-
 	if n != nil {
-        nptr, err := validNodePtr(n)
-        if err != nil {
-            return "", err
-        }
+		nptr, err := validNodePtr(n)
+		if err != nil {
+			return "", err
+		}
 
-        ctx := C.xmlXPathNewContext(nil)
-        defer C.xmlXPathFreeContext(ctx)
-        ctx.namespaces = nil
-        if err == nil {
-            ctx.node = (*C.xmlNode)(unsafe.Pointer(nptr))
-        }
+		ctx := C.xmlXPathNewContext(nil)
+		defer C.xmlXPathFreeContext(ctx)
+		ctx.namespaces = nil
+		if err == nil {
+			ctx.node = (*C.xmlNode)(unsafe.Pointer(nptr))
+		}
 		C.xmlXPathSetContextNode(nptr, ctx)
 		xpathObj := C.xmlXPathEvalExpression(exclc14nxpath, ctx)
 		defer C.xmlXPathFreeObject(xpathObj)
 		nodeset = xpathObj.nodesetval
 	}
-    var nsPrefixesSlice []*C.xmlChar
-    var nsPrefixesParam **C.xmlChar
+	var nsPrefixesSlice []*C.xmlChar
+	var nsPrefixesParam **C.xmlChar
 
-    for _, prefix := range strings.Fields(nsPrefixes) {
-        cs := C.CString(prefix)
-	    defer C.free(unsafe.Pointer(cs))
-        nsPrefixesSlice = append(nsPrefixesSlice, (*C.xmlChar)(unsafe.Pointer(cs)))
-        nsPrefixesParam = &nsPrefixesSlice[0]
-    }
+	for _, prefix := range strings.Fields(nsPrefixes) {
+		cs := C.CString(prefix)
+		defer C.free(unsafe.Pointer(cs))
+		nsPrefixesSlice = append(nsPrefixesSlice, (*C.xmlChar)(unsafe.Pointer(cs)))
+		nsPrefixesParam = &nsPrefixesSlice[0]
+	}
 	written := C.xmlC14NDocDumpMemory(dptr, nodeset, C.XML_C14N_EXCLUSIVE_1_0, nsPrefixesParam, 0, &result)
 	defer C.MY_xmlFree(unsafe.Pointer(result))
 
@@ -2164,16 +2163,16 @@ func XMLTextData(n PtrSource) string {
 }
 
 func XMLSchemaParse(buf []byte) (uintptr, error) {
-/*
-	parserCtx := C.xmlSchemaNewMemParserCtxt(
-		(*C.char)(unsafe.Pointer(&buf[0])),
-		C.int(len(buf)),
-	)
-*/
+	/*
+		parserCtx := C.xmlSchemaNewMemParserCtxt(
+			(*C.char)(unsafe.Pointer(&buf[0])),
+			C.int(len(buf)),
+		)
+	*/
 	cfile := C.CString(string(buf))
 	defer C.free(unsafe.Pointer(cfile))
 
-    parserCtx := C.xmlSchemaNewParserCtxt(cfile)
+	parserCtx := C.xmlSchemaNewParserCtxt(cfile)
 
 	if parserCtx == nil {
 		return 0, errors.New("failed to create parser")
