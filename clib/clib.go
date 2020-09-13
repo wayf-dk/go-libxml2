@@ -214,6 +214,7 @@ MY_xmlCreateElementNS(xmlDoc *doc, xmlChar *nsuri, xmlChar *name) {
 	if (root == NULL) {
 		// No document element
 		ns = xmlNewNs(NULL, nsuri, prefix);
+		newns = 1;
 	} else if (prefix != NULL) {
 		// Prefix exists, check if this is declared
 		ns = xmlSearchNs(doc, root, prefix);
@@ -236,6 +237,7 @@ MY_xmlCreateElementNS(xmlDoc *doc, xmlChar *nsuri, xmlChar *name) {
 		ns = xmlSearchNsByHref(doc, root, nsuri);
 		if (ns == NULL) {
 			ns = xmlNewNs(NULL, nsuri, NULL);
+			newns = 1;
 		}
 	}
 
